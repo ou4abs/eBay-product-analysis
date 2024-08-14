@@ -106,4 +106,9 @@ statsmodels==0.14.0
 numpy==2.0.0
 scipy==1.14.0
 pandas==2.2.2
+plotly==5.22.0
+statsmodels==0.14.0
+numpy==2.0.0
+pandas==2.2.2
+scipy==1.14.0
 
