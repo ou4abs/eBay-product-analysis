@@ -40,7 +40,7 @@ def process_file(file_path, keyword):
     return df
 
 # Directory containing the files
-directory = r'C:\Users\hp\Desktop\product_files'
+directory = 'product_files'
 
 # List all files in the directory
 files = os.listdir(directory)
@@ -60,7 +60,7 @@ import pandas as pd
 import os
 
 # Directory containing the .txt files
-directory = r'C:\Users\hp\Desktop\stat'
+directory = 'stat'
 
 # List to hold DataFrames
 df_list = []
