@@ -21,7 +21,7 @@ GitPython==3.1.43
 h11==0.14.0
 highlight-text==0.2
 htbuilder==0.6.2
-statsmodels==0.14.0
+statsmodels==0.13.0
 idna==3.7
 Jinja2==3.1.4
 jsonschema==4.22.0
