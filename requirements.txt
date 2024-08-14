@@ -22,7 +22,6 @@ h11==0.14.0
 highlight-text==0.2
 htbuilder==0.6.2
 statsmodels==0.14.0
-
 idna==3.7
 Jinja2==3.1.4
 jsonschema==4.22.0
@@ -101,14 +100,3 @@ watchdog==4.0.1
 webdriver-manager==4.0.1
 wsproto==1.2.0
 xyzservices==2024.6.0
-plotly==5.22.0
-statsmodels==0.14.0
-numpy==2.0.0
-scipy==1.14.0
-pandas==2.2.2
-plotly==5.22.0
-statsmodels==0.14.0
-numpy==2.0.0
-pandas==2.2.2
-scipy==1.14.0
-
