@@ -372,7 +372,7 @@ elif page == "Single Keyword Analysis":
 
     # 3. Quantity vs Price Scatter Plot
     st.markdown('<p class="medium-font">Quantity vs Price</p>', unsafe_allow_html=True)
-    fig = px.bar(keyword_data, x='timestamp', y='quantity', color='quantity', color_continuous_scale='Teal')
+    fig = px.bar(keyword_data, x='timestamp', y='quantity', color='quantity', color_continuous_scale='Viridis')
     fig.update_layout(
         xaxis_title="Average Sold Price", yaxis_title="Quantity Sold",
         plot_bgcolor='#0e1117', paper_bgcolor='#0e1117',
