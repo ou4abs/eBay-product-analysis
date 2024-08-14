@@ -369,20 +369,6 @@ elif page == "Single Keyword Analysis":
             yaxis=dict(gridcolor="#3b3f5c", title_font=dict(color="#14e2b7"))
         )
         st.plotly_chart(fig, use_container_width=True)
-        
-    # 3. Quantity vs Price Scatter Plot
-    st.markdown('<p class="medium-font">Quantity vs Price</p>', unsafe_allow_html=True)
-    fig = px.scatter(keyword_data, x='averageSold', y='quantity', trendline="ols", 
-                 color='quantity', color_continuous_scale='RdBu')
-    fig.update_layout(
-        xaxis_title="Average Sold Price", yaxis_title="Quantity Sold",
-        plot_bgcolor='#0e1117', paper_bgcolor='#0e1117',
-        font=dict(size=16, color="#ffffff"),
-        xaxis=dict(title_font=dict(color="#14e2b7")),
-        yaxis=dict(title_font=dict(color="#14e2b7"))
-    )
-    st.plotly_chart(fig, use_container_width=True)
-
     # 4. Cumulative Sales
     st.markdown('<p class="medium-font">Cumulative Sales</p>', unsafe_allow_html=True)
     keyword_data['cumulative_sales'] = keyword_data['quantity'].cumsum()
