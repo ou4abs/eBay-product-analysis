@@ -117,7 +117,7 @@ import pandas as pd
 import os
 
 # Directory containing the text files
-directory = r'C:\Users\hp\Desktop\agg_files'
+directory = 'agg_files'
 
 # Initialize an empty list to hold data from all files
 all_data = []
