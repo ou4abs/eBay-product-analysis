@@ -112,6 +112,51 @@ for filename in os.listdir(directory):
 all_data_df = pd.concat(df_list, ignore_index=True)
 df_any_na=all_data_df.replace('N/A', pd.NA, inplace=True)
 all_data_df = all_data_df.dropna()
+import json
+import pandas as pd
+import os
+
+# Directory containing the text files
+directory = r'C:\Users\hp\Desktop\agg_files'
+
+# Initialize an empty list to hold data from all files
+all_data = []
+
+# Check if directory exists
+if not os.path.isdir(directory):
+    print(f"Directory does not exist: {directory}")
+else:
+    # Iterate over all files in the directory
+    for filename in os.listdir(directory):
+        if filename.endswith('.txt'):
+            file_path = os.path.join(directory, filename)
+            keyword = os.path.splitext(filename)[0]  # Get filename without extension
+            
+            print(f"Processing file: {filename}")  # Debug: Print the current file being processed
+            
+            try:
+                # Load JSON data from the file
+                with open(file_path, encoding='utf-8') as file:
+                    data = json.load(file)
+                
+                # Extract the relevant information
+                if 'sections' in data:
+                    for section in data['sections']:
+                        if 'dataItems' in section:
+                            for item in section['dataItems']:
+                                header = item['header']['textSpans'][0].get('text', 'N/A')
+                                value = item['value']['textSpans'][0].get('text', 'N/A')
+                                all_data.append({"Header": header, "Value": value, "Keyword": keyword})
+                        else:
+                            print(f"No 'dataItems' key found in section of {filename}")
+                else:
+                    print(f"No 'sections' key found in {filename}")
+
+            except Exception as e:
+                print(f"Error processing file {filename}: {e}")
+
+    # Convert the list of data to a DataFrame
+    agg = pd.DataFrame(all_data)
 
 import streamlit as st
 import pandas as pd
@@ -363,13 +408,122 @@ elif page == "Product Details":
     keyword = st.selectbox("Select a keyword", options=all_data_df['keyword'].unique(), key="product_keyword_select")
     keyword_data = all_data_df[all_data_df['keyword'] == keyword]
 
+    # Filter the mini table data based on the selected keyword
+    filtered_agg = agg[agg['Keyword'] == keyword]
+
+    # Extract specific summary values
+    summary_values = {
+        'Free shipping': filtered_agg[filtered_agg['Header'] == 'Free shipping']['Value'].values[0] if 'Free shipping' in filtered_agg['Header'].values else 'N/A',
+        'Total sellers': filtered_agg[filtered_agg['Header'] == 'Total sellers']['Value'].values[0] if 'Total sellers' in filtered_agg['Header'].values else 'N/A',
+        'Sell-through': filtered_agg[filtered_agg['Header'] == 'Sell-through']['Value'].values[0] if 'Sell-through' in filtered_agg['Header'].values else 'N/A'
+    }
+
+    # Display the summary information as columns
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown('<p class="metric-title">Free Shipping</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="metric-value">{summary_values["Free shipping"]}</p>', unsafe_allow_html=True)
+    with col2:
+        st.markdown('<p class="metric-title">Total Sellers</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="metric-value">{summary_values["Total sellers"]}</p>', unsafe_allow_html=True)
+    with col3:
+        st.markdown('<p class="metric-title">Sell-through</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="metric-value">{summary_values["Sell-through"]}</p>', unsafe_allow_html=True)
+
     # Sort the DataFrame by 'itemssold' and 'totalsales'
     keyword_data = keyword_data.sort_values(by=['itemssold', 'totalsales'], ascending=[False, False])
 
-    # Display the data in a styled table
+    # Optionally, add some visualizations
+    st.markdown('<p class="medium-font">Price Distribution</p>', unsafe_allow_html=True)
+    fig = px.histogram(keyword_data, x='price', nbins=20, color_discrete_sequence=['#14e2b7'])
+    fig.update_layout(
+        xaxis_title="Price", yaxis_title="Count",
+        plot_bgcolor='#0e1117', paper_bgcolor='#0e1117',
+        font=dict(size=16, color="#ffffff"),
+        xaxis=dict(gridcolor="#3b3f5c", title_font=dict(color="#14e2b7")),
+        yaxis=dict(gridcolor="#3b3f5c", title_font=dict(color="#14e2b7"))
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Now, display the title for the table
     st.markdown('<p class="medium-font">Product Listings</p>', unsafe_allow_html=True)
+
+    # Custom CSS for the page
+    custom_css = """
+    <style>
+    .big-font {
+        font-size: 24px;
+        color: #7055bb;
+    }
+    .medium-font {
+        font-size: 18px;
+        color: #f36219;
+    }
+    .metric-title {
+        font-size: 16px;
+        color: #829f0d;
+        font-weight: bold;
+    }
+    .metric-value {
+        font-size: 20px;
+        color: #14e2b7;
+        font-weight: bold;
+    }
+    table {
+        color: #ffffff;
+        font-size: 14px;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    th {
+        background-color: #293b76;
+        color: white;
+        font-weight: bold;
+        padding: 10px;
+        text-align: left;
+        border-bottom: 2px solid #7055bb;
+    }
+    td {
+        background-color: #1e2130;
+        padding: 8px;
+        border-bottom: 1px solid #3b3f5c;
+    }
+    tr:hover {
+        background-color: #2c3154;
+    }
+    img {
+        max-width: 100px;
+        max-height: 100px;
+    }
+    a {
+        color: #14e2b7;
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    </style>
+    """
     
-    # Custom CSS for the table
+    # Apply custom CSS
+    st.markdown(custom_css, unsafe_allow_html=True)
+
+    # Function to create clickable title with link
+    def make_clickable(title, link):
+        return f'<a href="{link}" target="_blank">{title}</a>'
+
+    # Function to display image with link
+    def image_with_link(image_url, link):
+        return f'<a href="{link}" target="_blank"><img src="{image_url}" alt="Product Image"></a>'
+
+    # Prepare the DataFrame for display
+    display_df = keyword_data[['title', 'price', 'avgshipping', 'itemssold', 'totalsales', 'datelastsold', 'image', 'link']]
+    display_df['title'] = display_df.apply(lambda x: make_clickable(x['title'], x['link']), axis=1)
+    display_df['image'] = display_df.apply(lambda x: image_with_link(x['image'], x['link']), axis=1)
+    display_df = display_df.drop(columns=['link'])  # Remove the link column as it's now integrated
+    
+    # Convert DataFrame to HTML and apply custom styling
+    table_html = display_df.to_html(escape=False, index=False)
     table_style = """
     <style>
     table {
@@ -407,44 +561,10 @@ elif page == "Product Details":
     }
     </style>
     """
-    
-    # Function to create clickable title with link
-    def make_clickable(title, link):
-        return f'<a href="{link}" target="_blank">{title}</a>'
-
-    # Function to display image with link
-    def image_with_link(image_url, link):
-        return f'<a href="{link}" target="_blank"><img src="{image_url}" alt="Product Image"></a>'
-
-    # Prepare the DataFrame for display
-    display_df = keyword_data[['title', 'price', 'avgshipping', 'itemssold', 'totalsales', 'datelastsold', 'image', 'link']]
-    display_df['title'] = display_df.apply(lambda x: make_clickable(x['title'], x['link']), axis=1)
-    display_df['image'] = display_df.apply(lambda x: image_with_link(x['image'], x['link']), axis=1)
-    display_df = display_df.drop(columns=['link'])  # Remove the link column as it's now integrated
-
-    # Convert DataFrame to HTML and apply custom styling
-    table_html = display_df.to_html(escape=False, index=False)
     styled_table = f"{table_style}\n{table_html}"
     
     # Display the styled table
     st.markdown(styled_table, unsafe_allow_html=True)
-
-    # Add some summary statistics
-    st.markdown('<p class="medium-font">Summary Statistics</p>', unsafe_allow_html=True)
-    summary = keyword_data[['price', 'avgshipping', 'itemssold', 'totalsales']].describe()
-    st.dataframe(summary, use_container_width=True)
-
-    # Optionally, add some visualizations
-    st.markdown('<p class="medium-font">Price Distribution</p>', unsafe_allow_html=True)
-    fig = px.histogram(keyword_data, x='price', nbins=20, color_discrete_sequence=['#14e2b7'])
-    fig.update_layout(
-        xaxis_title="Price", yaxis_title="Count",
-        plot_bgcolor='#0e1117', paper_bgcolor='#0e1117',
-        font=dict(size=16, color="#ffffff"),
-        xaxis=dict(gridcolor="#3b3f5c", title_font=dict(color="#14e2b7")),
-        yaxis=dict(gridcolor="#3b3f5c", title_font=dict(color="#14e2b7"))
-    )
-    st.plotly_chart(fig, use_container_width=True)
 
 # Footer
 st.markdown('<p class="small-font">Ebay July History</p>', unsafe_allow_html=True)
