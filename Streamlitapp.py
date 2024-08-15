@@ -343,16 +343,16 @@ elif page == "Single Keyword Analysis":
     col1, col2 = st.columns(2)
 
     with col1:
-        # 3. Quantity vs Price Scatter Plot
-        st.markdown('<p class="medium-font">Quantity vs Price</p>', unsafe_allow_html=True)
-        fig = px.scatter(keyword_data, x='averageSold', y='quantity', trendline="ols", 
-                         color='quantity', color_continuous_scale='RdBu')
+        # 1. Sales Trend
+        st.markdown('<p class="medium-font">Sales Trend</p>', unsafe_allow_html=True)
+        fig = px.bar(keyword_data, x='timestamp', y='quantity', color='quantity', 
+                     color_continuous_scale='Teal')
         fig.update_layout(
-            xaxis_title="Average Sold Price", yaxis_title="Quantity Sold",
+            xaxis_title="Date", yaxis_title="Quantity Sold",
             plot_bgcolor='#0e1117', paper_bgcolor='#0e1117',
             font=dict(size=16, color="#ffffff"),
-            xaxis=dict(title_font=dict(color="#14e2b7")),
-            yaxis=dict(title_font=dict(color="#14e2b7"))
+            xaxis=dict(gridcolor="#3b3f5c", title_font=dict(color="#14e2b7")),
+            yaxis=dict(gridcolor="#3b3f5c", title_font=dict(color="#14e2b7"))
         )
         st.plotly_chart(fig, use_container_width=True)
 
